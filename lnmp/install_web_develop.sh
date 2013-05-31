@@ -136,7 +136,7 @@ function InstallBasePackage()
         yum -y install yum-fastestmirror
         yum -y install gcc gcc-c++ autoconf libjpeg libjpeg-devel libpng libpng-devel freetype freetype-devel libxml2 libxml2-devel zlib zlib-devel glibc glibc-devel glib2 glib2-devel bzip2 bzip2-devel ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel openldap openldap-devel nss_ldap openldap-clients openldap-servers
 #Nginx
-        yum -y install pcre-devel  zlib-devel
+        yum -y install pcre-devel  zlib-devel readline-devel
 #Php
         yum -y install gd-devel libjpeg-devel libpng-devel freetype-devel libxml2-devel curl-devel freetype-devel
 #Mysql
