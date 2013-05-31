@@ -212,7 +212,7 @@ function InstallMysql()
         make uninstall
         rm -rf ${cMysqlInstallPath}
     fi
-	CC=gcc CFLAGS="-DBIG_JOINS=1 -DHAVE_DLOPEN=1 -O3" CXX=g++ CXXFLAGS="-DBIG_JOINS=1 -DHAVE_DLOPEN=1 -felide-constructors -fno-rtti -O3"
+    CC=gcc CFLAGS="-DBIG_JOINS=1 -DHAVE_DLOPEN=1 -O3" CXX=g++ CXXFLAGS="-DBIG_JOINS=1 -DHAVE_DLOPEN=1 -felide-constructors -fno-rtti -O3"
     cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql \
     -DMYSQL_UNIX_ADDR=/tmp/mysql.sock \
     -DDEFAULT_CHARSET=utf8 \
@@ -223,49 +223,51 @@ function InstallMysql()
     -DWITH_READLINE=1 \
     -DENABLED_LOCAL_INFILE=1 \
     -DMYSQL_DATADIR=/var/mysql/data
-	sleep 3
-	make -j4 && make  install
+    sleep 3
+    make -j4 && make  install
 	
-	groupadd mysql
-	useradd -g mysql mysql
-	cd ${cMysqlInstallPath} && chown -R mysql . && chgrp -R mysql .
-	echo "make install is ok"
+    groupadd mysql
+    useradd -g mysql mysql
+    cd ${cMysqlInstallPath} && chown -R mysql . && chgrp -R mysql .
+    echo "make install is ok"
 	
-	sleep 3
+    sleep 3
 
     if [[ -f ${cMysqlConfUploadFile} ]] ; then
         cp ${cMysqlConfUploadFile} /etc/my.cnf
     else
-	    cp ${cMysqlInstallPath}support-files/my-default.cnf /etc/my.cnf
-	    sed "s/skip-locking/external-locking/g" -i /etc/my.cnf
+	cp ${cMysqlInstallPath}support-files/my-default.cnf /etc/my.cnf
+	sed "s/skip-locking/external-locking/g" -i /etc/my.cnf
         sed "s/#innodb_/innodb_/g" -i /etc/my.cnf
-        sed -i '32 i\default-storage-engine=InnoDB' -i /etc/my.cnf   
-	fi
-    ${cMysqlInstallPath}/script/mysql_install_db --basedir=${cMysqlInstallPath}/ --user=mysql \
+        sed -i '31 i\default-storage-engine=InnoDB' -i /etc/my.cnf   
+        mkdir -p /var/mysql/data/
+        chown mysql:mysql /var/mysql -R
+    fi
+    ${cMysqlInstallPath}/scripts/mysql_install_db --basedir=${cMysqlInstallPath}/ --user=mysql \
     --datadir=/var/mysql/data
     ln -s /usr/local/mysql/lib/libmysqlclient.so.18 /usr/lib/libmysqlclient.so.18
-	echo "install_db Initialize the database is complete"
+    echo "install_db Initialize the database is complete"
 	
-	sleep 3
-	echo "Try to start the database"
-	cp ${cMysqlInstallPath}support-files/mysql.server /etc/init.d/mysql
-	cp ${cMysqlInstallPath}/bin/mysql  /usr/sbin/
-    sevice mysql start
-	cd ${cMysqlInstallPath} && chown -R mysql . &&  chgrp -R mysql .
-	echo "Database startup is complete"
-	sleep 3
+    sleep 3
+    echo "Try to start the database"
+    cp ${cMysqlInstallPath}support-files/mysql.server /etc/init.d/mysql
+    cp ${cMysqlInstallPath}/bin/mysql  /usr/sbin/
+    service mysql start
+    cd ${cMysqlInstallPath} && chown -R mysql . &&  chgrp -R mysql .
+    echo "Database startup is complete"
+    sleep 3
 	
-	echo "Change your password after 10 seconds"
-	sleep 10
-	cd ${cMysqlInstallPath} && ./bin/mysqladmin -uroot password ${cMysqlDefaultPasswd}
+    echo "Change your password after 10 seconds"
+    sleep 10
+    cd ${cMysqlInstallPath} && ./bin/mysqladmin -uroot password ${cMysqlDefaultPasswd}
 
     echo "service mysql start" >> /etc/rc.d/rc.local
-	if [[ $? -ne 0 ]] ; then
-	    echo -e "\e[0;31;1mInstallation fails, check the above error\e[0m"
-	    exit 1
-	else
-	    echo -e "\e[0;34;1mCongratulations, the installation was successful.Directory:"${cMysqlInstallPath}"\e[0m"
-	fi
+    if [[ $? -ne 0 ]] ; then
+        echo -e "\e[0;31;1mInstallation fails, check the above error\e[0m"
+        exit 1
+    else
+        echo -e "\e[0;34;1mCongratulations, the installation was successful.Directory:"${cMysqlInstallPath}"\e[0m"
+    fi
     echo
     echo "**********************************************************"
     echo "* Install Mysql is completed.( Use Percona-Server-5.6 ). *" 
@@ -326,7 +328,7 @@ function InstallNginx()
         tar zxvf openssl-1.0.1c.tar.gz && cd openssl-1.0.1c
     fi
         
-    ./config --prefix=/usr/local/ --openssldir=/usr/local/openssl-1.0.0c shared zlib-dynamic enable-camellia enable-tlsext
+    ./config --prefix=/usr/local/ --openssldir=/usr/local/openssl-1.0.1c shared zlib-dynamic enable-camellia enable-tlsext
     make && make install && cd ../
 #install nginx   
     if [[ -d ${cNginxPackageDir} ]] ; then
