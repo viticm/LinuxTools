@@ -208,8 +208,11 @@ function InstallMysql()
     #delete mysql install directory
     cd ${cMysqlPackageDir}
     if [[ "" != `ps -A | grep mysql` ]]; then
+        PRINTWARNING "mysql is install and run now will uninstall it, or Ctrl+C to abort now."
+        read answer 
         service mysql stop
-        make uninstall
+#       make clean
+#        make uninstall
         rm -rf ${cMysqlInstallPath}
     fi
 	CC=gcc CFLAGS="-DBIG_JOINS=1 -DHAVE_DLOPEN=1 -O3" CXX=g++ CXXFLAGS="-DBIG_JOINS=1 -DHAVE_DLOPEN=1 -felide-constructors -fno-rtti -O3"
@@ -240,8 +243,9 @@ function InstallMysql()
 	    sed "s/skip-locking/external-locking/g" -i /etc/my.cnf
         sed "s/#innodb_/innodb_/g" -i /etc/my.cnf
         sed -i '32 i\default-storage-engine=InnoDB' -i /etc/my.cnf   
+        make -p /var/mysql/data && chown mysql:mysql /var/mysql/ -R
 	fi
-    ${cMysqlInstallPath}/script/mysql_install_db --basedir=${cMysqlInstallPath}/ --user=mysql \
+    ${cMysqlInstallPath}/scripts/mysql_install_db --basedir=${cMysqlInstallPath}/ --user=mysql \
     --datadir=/var/mysql/data
     ln -s /usr/local/mysql/lib/libmysqlclient.so.18 /usr/lib/libmysqlclient.so.18
 	echo "install_db Initialize the database is complete"
@@ -250,7 +254,7 @@ function InstallMysql()
 	echo "Try to start the database"
 	cp ${cMysqlInstallPath}support-files/mysql.server /etc/init.d/mysql
 	cp ${cMysqlInstallPath}/bin/mysql  /usr/sbin/
-    sevice mysql start
+    service mysql start
 	cd ${cMysqlInstallPath} && chown -R mysql . &&  chgrp -R mysql .
 	echo "Database startup is complete"
 	sleep 3
@@ -283,6 +287,13 @@ function InstallNginx()
     echo "***************************************"
     echo "* Start install Nginx( Use tengine ). *" 
     echo "***************************************"
+#if [[ "" != `ps -A | grep nginx` ]]; then
+#        PRINTWARNING "mysql is install and run now will uninstall it, or Ctrl+C to abort now."
+#        service nginx stop
+#        make uninstall
+#        rm -rf ${cInstallNginxPath}
+#    fi
+
     groupadd www
 	useradd -g www www
     if [[ ${cDownload} == "on" ]] ; then
@@ -302,12 +313,12 @@ function InstallNginx()
             wget -c  http://www.openssl.org/source/openssl-1.0.1c.tar.gz
         fi
 #Nginx(pcre)
-        if [[ -f ${cInstallFile}pcre-8.30.tar.gz ]] ; then
-            echo pcre-8.30.tar.gz is found.
-        else
-            echo now will download pcre-8.30.tar.gz from network.
-            wget http://nchc.dl.sourceforge.net/project/pcre/pcre/8.30/pcre-8.30.tar.gz
-        fi
+#        if [[ -f ${cInstallFile}pcre-8.30.tar.gz ]] ; then
+#            echo pcre-8.30.tar.gz is found.
+#        else
+#            echo now will download pcre-8.30.tar.gz from network.
+#            wget http://nchc.dl.sourceforge.net/project/pcre/pcre/8.30/pcre-8.30.tar.gz
+#        fi
         bExit=`echo $?`
         if [[ ${bExit} != 0 ]] ; then 
             echo -e "\e[0;31;1mdownload package is failed,Please check your network.\e[0m"
@@ -315,25 +326,26 @@ function InstallNginx()
         fi
      fi   
 #install pcre
-    tar -zxvf pcre-8.30.tar.gz
-#     && cd pcre-8.30/ && ./configure
+#    tar -zxvf pcre-8.30.tar.gz && cd pcre-8.30/ && ./configure
 #    make -s -j4 && make install
 #    cd ../
 #install openssl
     if [[ -d openssl-1.0.1c ]] ; then
         PRINTUSEDIR openssl-1.0.1c
     else
-        tar zxvf openssl-1.0.1c.tar.gz && cd openssl-1.0.1c
+        tar zxvf openssl-1.0.1c.tar.gz #&& cd openssl-1.0.1c
     fi
         
-    ./config --prefix=/usr/local/ --openssldir=/usr/local/openssl-1.0.0c shared zlib-dynamic enable-camellia enable-tlsext
-    make && make install && cd ../
+#    ./config --prefix=/usr/local/ --openssldir=/usr/local/openssl-1.0.1c shared zlib-dynamic enable-camellia enable-tlsext -fPIC
+#    make && make install && cd ../
 #install nginx   
     if [[ -d ${cNginxPackageDir} ]] ; then
         PRINTUSEDIR ${cNginxPackageDir}
     else
-        tar -xzvf ${cNginxPackage} && cd ${cNginxPackageDir}
+        tar -xzvf ${cNginxPackage}
     fi
+    cd ${cInstallFile}${cNginxPackageDir}
+    make clean
     ./configure --user=${cWebUser} --group=${cWebUser} \
     --prefix=${cInstallNginxPath} \
     --sbin-path=${cInstallNginxPath}sbin/nginx \
@@ -341,11 +353,10 @@ function InstallNginx()
     --with-http_stub_status_module \
     --lock-path=/var/run/nginx.lock \
     --pid-path=/var/run/nginx.pid \
-    --with-pcre=../pcre-8.30 \
-    --with-openssl=/usr/local/openssl-1.0.1c \
+    --with-openssl=../openssl-1.0.1c \
     --with-pcre-jit
-
-    make -s -j4 && make install && cd ../
+    sleep 10
+    make && make install
     bExit=`echo $?`
     if [[ ${bExit} != 0 ]] ; then
         echo -e "\e[0;31;1minstall nginx have some error,you can read it.\e[0m"
@@ -706,6 +717,24 @@ function PRINTUSEDIR()
     cDirName=$1
     echo ${cDirName} is found, use it and make uninstall.
     cd ${cDirName} && make uninstall
+}
+#@desc print red error and exit
+#@param string $cErrorStr
+#@return void
+function PRINTERR()
+{
+    cErrorStr=${1}
+    echo -e "\e[0;31;1mERROR:${cErrorStr}\e[0m"
+    exit 1
+}
+
+#@desc print yellow warning and not exit
+#@param string $cWarningStr
+#@return void
+function PRINTWARNING()
+{
+    cWarningStr=${1}
+    echo -e "\e[0;33;1mWARNING:${cWarningStr}\e[0m"
 }
 #create install file
 if [[ $cCommand != -base ]] ; then
