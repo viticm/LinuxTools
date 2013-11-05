@@ -220,7 +220,7 @@ function InstallMysql()
     -DMYSQL_UNIX_ADDR=/tmp/mysql.sock \
     -DDEFAULT_CHARSET=utf8 \
     -DDEFAULT_COLLATION=utf8_general_ci \
-    -DWITH_EXTRA_CHARSETS:STRING=utf8,gbk \
+    -DWITH_EXTRA_CHARSETS=all \
     -DWITH_MYISAM_STORAGE_ENGINE=1 \
     -DWITH_INNOBASE_STORAGE_ENGINE=1 \
     -DWITH_READLINE=1 \
