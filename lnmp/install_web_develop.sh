@@ -194,7 +194,7 @@ function InstallMysql()
 	    then
 		    tar -zxvf ${cMysqlPackage}
 	    else
-            wget -c http://www.percona.com/downloads/Percona-Server-5.6/LATEST/source/Percona-Server-5.6.10-alpha60.2.tar.gz
+            wget -c http://www.percona.com/redir/downloads/Percona-Server-5.6/Percona-Server-5.6.10-alpha60.2/source/Percona-Server-5.6.10-alpha60.2.tar.gz
 	        if [[ $? -ne 0 ]] ; then
 	            echo "download mysql is failed,please check your network."
 	            exit 1
