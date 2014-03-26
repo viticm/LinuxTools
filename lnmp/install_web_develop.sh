@@ -237,7 +237,7 @@ function InstallMysql()
   echo "make install is ok"
   
   sleep 3
-  make -p /var/mysql/data && chown mysql:mysql /var/mysql/ -R
+  mkdir -p /var/mysql/data && chown mysql:mysql /var/mysql/ -R
   if [[ -f ${cMysqlConfUploadFile} ]] ; then
     cp ${cMysqlConfUploadFile} /etc/my.cnf
   else
