@@ -20,7 +20,7 @@ cTestDomain=www.baidu.com
 ##### mysql config #####
 cMysqlDefaultPasswd=mysql
 cMysqlInstallPath=/usr/local/mysql/
-cMysqlConfUploadFile=/home/dc/install/my.cnf
+cMysqlConfUploadFile=`pwd`/my.cnf
 ##### mysql config #####
 
 ####### PHP #######
@@ -208,12 +208,12 @@ function InstallMysql()
   sleep 3
   #delete mysql install directory
   cd ${cMysqlPackageDir}
-  if [[ "" != `ps -A | grep mysql` ]]; then
+  if [[ "" != `ps -A | grep mysqld` ]]; then
     PRINTWARNING "mysql is install and run now will uninstall it, or Ctrl+C to abort now."
     read answer 
     service mysql stop
-#     make clean
-#    make uninstall
+#   make clean
+#   make uninstall
     rm -rf ${cMysqlInstallPath}
   fi
   
@@ -261,8 +261,9 @@ function InstallMysql()
   echo "Change your password after 10 seconds"
   sleep 10
   cd ${cMysqlInstallPath} && ./bin/mysqladmin -uroot password ${cMysqlDefaultPasswd}
-
-  echo "service mysql start" >> /etc/rc.d/rc.local
+  if [[ "" == `cat /etc/rc.d/rc.local | grep "service mysql start"` ]] ; then
+    echo "service mysql start" >> /etc/rc.d/rc.local
+  fi
   if [[ $? -ne 0 ]] ; then
     echo -e "\e[0;31;1mInstallation fails, check the above error\e[0m"
     exit 1
