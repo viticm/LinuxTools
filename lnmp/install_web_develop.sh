@@ -20,7 +20,7 @@ cTestDomain=www.baidu.com
 ##### mysql config #####
 cMysqlDefaultPasswd=mysql
 cMysqlInstallPath=/usr/local/mysql/
-cMysqlConfUploadFile=/web/my.cnf
+cMysqlConfUploadFile=./my.cnf
 ##### mysql config #####
 
 ####### PHP #######
@@ -170,10 +170,10 @@ function InstallMysql()
 {
   echo
   echo "**********************************************"
-  echo "* Start install mysql( Percona-Server-5.6 ). *"
+  echo "* Start install mysql( Percona-Server-5.1.62 ). *"
   echo "**********************************************"
-  local cMysqlPackage="Percona-Server-5.6.10-alpha60.2.tar.gz"
-  local cMysqlPackageDir="Percona-Server-5.6.10-alpha60.2"
+  local cMysqlPackage="Percona-Server-5.1.62.tar.gz"
+  local cMysqlPackageDir="Percona-Server-5.1.62"
   if [[ ${cBase} == "no" ]] ; then    
     yum -y install make
     yum -y install cmake
@@ -195,7 +195,8 @@ function InstallMysql()
     then
       tar -zxvf ${cMysqlPackage}
     else
-      wget -c http://www.percona.com/redir/downloads/Percona-Server-5.6/Percona-Server-5.6.10-alpha60.2/source/Percona-Server-5.6.10-alpha60.2.tar.gz
+      #wget -c http://www.percona.com/redir/downloads/Percona-Server-5.6/Percona-Server-5.6.10-alpha60.2/source/Percona-Server-5.6.10-alpha60.2.tar.gz
+		  wget -c http://www.percona.com/downloads/Percona-Server-5.1/Percona-Server-5.1.62-13.3/source/Percona-Server-5.1.62.tar.gz
       if [[ $? -ne 0 ]] ; then
         echo "download mysql is failed,please check your network."
         exit 1
@@ -217,17 +218,22 @@ function InstallMysql()
     rm -rf ${cMysqlInstallPath}
   fi
   
-  CC=gcc CFLAGS="-DBIG_JOINS=1 -DHAVE_DLOPEN=1 -O3" CXX=g++ CXXFLAGS="-DBIG_JOINS=1 -DHAVE_DLOPEN=1 -felide-constructors -fno-rtti -O3"
-  cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql \
-  -DMYSQL_UNIX_ADDR=/tmp/mysql.sock \
-  -DDEFAULT_CHARSET=utf8 \
-  -DDEFAULT_COLLATION=utf8_general_ci \
-  -DWITH_EXTRA_CHARSETS=all \
-  -DWITH_MYISAM_STORAGE_ENGINE=1 \
-  -DWITH_INNOBASE_STORAGE_ENGINE=1 \
-  -DWITH_READLINE=1 \
-  -DENABLED_LOCAL_INFILE=1 \
-  -DMYSQL_DATADIR=/var/mysql/data
+#  CC=gcc CFLAGS="-DBIG_JOINS=1 -DHAVE_DLOPEN=1 -O3" CXX=g++ CXXFLAGS="-DBIG_JOINS=1 -DHAVE_DLOPEN=1 -felide-constructors -fno-rtti -O3"
+#  cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql \
+#  -DMYSQL_UNIX_ADDR=/tmp/mysql.sock \
+#  -DDEFAULT_CHARSET=utf8 \
+#  -DDEFAULT_COLLATION=utf8_general_ci \
+#  -DWITH_EXTRA_CHARSETS=all \
+#  -DWITH_MYISAM_STORAGE_ENGINE=1 \
+#  -DWITH_INNOBASE_STORAGE_ENGINE=1 \
+#  -DWITH_READLINE=1 \
+#  -DENABLED_LOCAL_INFILE=1 \
+#  -DMYSQL_DATADIR=/var/mysql/data
+
+	CC=gcc CFLAGS="-DBIG_JOINS=1 -DHAVE_DLOPEN=1 -O3" CXX=g++ CXXFLAGS="-DBIG_JOINS=1 -DHAVE_DLOPEN=1 -felide-constructors -fno-rtti -O3"
+	./configure --prefix=/usr/local/mysql --with-charset=utf8 --with-collation=utf8_general_ci --with-extra-charsets=all --enable-thread-safe-client \
+    --with-big-tables --with-plugins=partition,innobase,innodb_plugin
+
   sleep 3
   make -j4 && make  install
   
@@ -242,9 +248,9 @@ function InstallMysql()
     cp ${cMysqlConfUploadFile} /etc/my.cnf
   else
   cp ${cMysqlInstallPath}support-files/my-default.cnf /etc/my.cnf
-  #sed "s/skip-locking/external-locking/g" -i /etc/my.cnf
-  #sed "s/#innodb_/innodb_/g" -i /etc/my.cnf
-  #sed -i '32 i\default-storage-engine=InnoDB' -i /etc/my.cnf   
+  sed "s/skip-locking/external-locking/g" -i /etc/my.cnf
+  sed "s/#innodb_/innodb_/g" -i /etc/my.cnf
+  sed -i '32 i\default-storage-engine=InnoDB' -i /etc/my.cnf   
   fi
   ${cMysqlInstallPath}/scripts/mysql_install_db --basedir=${cMysqlInstallPath}/ --user=mysql --datadir=/var/mysql/data
   ln -s /usr/local/mysql/lib/libmysqlclient.so.18 /usr/lib/libmysqlclient.so.18
