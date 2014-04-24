@@ -170,7 +170,7 @@ function InstallMysql()
 {
   echo
   echo "**********************************************"
-  echo "* Start install mysql( Percona-Server-5.6.10-alpha60.2 ). *"
+  echo "* Start install mysql( Percona-Server-5.6 ). *"
   echo "**********************************************"
   local cMysqlPackage="Percona-Server-5.6.10-alpha60.2.tar.gz"
   local cMysqlPackageDir="Percona-Server-5.6.10-alpha60.2"
@@ -196,7 +196,6 @@ function InstallMysql()
       tar -zxvf ${cMysqlPackage}
     else
       wget -c http://www.percona.com/redir/downloads/Percona-Server-5.6/Percona-Server-5.6.10-alpha60.2/source/Percona-Server-5.6.10-alpha60.2.tar.gz
-		  #wget -c http://www.percona.com/downloads/Percona-Server-5.1/Percona-Server-5.1.62-13.3/source/Percona-Server-5.1.62.tar.gz
       if [[ $? -ne 0 ]] ; then
         echo "download mysql is failed,please check your network."
         exit 1
@@ -229,11 +228,6 @@ function InstallMysql()
   -DWITH_READLINE=1 \
   -DENABLED_LOCAL_INFILE=1 \
   -DMYSQL_DATADIR=/var/mysql/data
-
-	#CC=gcc CFLAGS="-DBIG_JOINS=1 -DHAVE_DLOPEN=1 -O3" CXX=g++ CXXFLAGS="-DBIG_JOINS=1 -DHAVE_DLOPEN=1 -felide-constructors -fno-rtti -O3"
-	#./configure --prefix=/usr/local/mysql --with-charset=utf8 --with-collation=utf8_general_ci --with-extra-charsets=all --enable-thread-safe-client \
-  #  --with-big-tables --with-plugins=partition,innobase,innodb_plugin
-
   sleep 3
   make -j4 && make  install
   
@@ -247,11 +241,10 @@ function InstallMysql()
   if [[ -f ${cMysqlConfUploadFile} ]] ; then
     cp ${cMysqlConfUploadFile} /etc/my.cnf
   else
-    cp ${cMysqlInstallPath}support-files/my-default.cnf /etc/my.cnf
-	#cp ${cMysqlInstallPath}share/mysql/my-medium.cnf /etc/my.cnf
-  #  sed "s/skip-locking/external-locking/g" -i /etc/my.cnf
-  #  sed "s/#innodb_/innodb_/g" -i /etc/my.cnf
-  #  sed -i '32 i\default-storage-engine=InnoDB' -i /etc/my.cnf   
+  cp ${cMysqlInstallPath}support-files/my-default.cnf /etc/my.cnf
+  #sed "s/skip-locking/external-locking/g" -i /etc/my.cnf
+  #sed "s/#innodb_/innodb_/g" -i /etc/my.cnf
+  #sed -i '32 i\default-storage-engine=InnoDB' -i /etc/my.cnf   
   fi
   ${cMysqlInstallPath}/scripts/mysql_install_db --basedir=${cMysqlInstallPath}/ --user=mysql --datadir=/var/mysql/data
   ln -s /usr/local/mysql/lib/libmysqlclient.so.18 /usr/lib/libmysqlclient.so.18
@@ -260,9 +253,6 @@ function InstallMysql()
   echo "Try to start the database"
   cp ${cMysqlInstallPath}support-files/mysql.server /etc/init.d/mysql
   cp ${cMysqlInstallPath}/bin/mysql  /usr/sbin/
-	#cp ${cMysqlInstallPath}share/mysql/mysql.server /etc/init.d/mysql
-	#cp $basedir/bin/mysql  /usr/sbin/
-
   service mysql start
   cd ${cMysqlInstallPath} && chown -R mysql . &&  chgrp -R mysql .
   echo "Database startup is complete"
