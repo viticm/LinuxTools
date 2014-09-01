@@ -258,6 +258,8 @@ function InstallMysql()
   cd ${cMysqlInstallPath} && chown -R mysql . &&  chgrp -R mysql .
   echo "Database startup is complete"
   sleep 3
+
+  ln -s ${cMysqlInstallPath}/include/* /usr/local/include/ #for php 5.4
   
   echo "Change your password after 10 seconds"
   sleep 10
