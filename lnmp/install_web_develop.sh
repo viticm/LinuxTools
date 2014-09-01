@@ -397,10 +397,10 @@ function InstallPHP()
   cd ${cInstallFile}
   echo
   echo "**********************************************"
-  echo "* Start install PHP.( Default version 5.3 ). *" 
+  echo "* Start install PHP.( Default version ${cPHPDefaultVersion} ). *" 
   echo "**********************************************"
 
-  local cPhpVersion=${2}
+  local cPhpVersion=${1}
   local cPhpPackage=""
   local cPhpPackageDir=""
   if [[ -z ${cPhpVersion} ]]; then
@@ -757,7 +757,7 @@ elif [[ $cCommand == "-n" || "--nginx" == ${cCommand} ]] ; then
   InstallNginx
 elif [[ $cCommand == "-p" || "--php" == ${cCommand} ]] ; then
   DownloadTip
-  InstallPHP
+  InstallPHP ${2}
 elif [[ $cCommand == "--test" ]] ; then
   InsertStrAboveLastLine "|1|2|3|4|5|" /home/test.txt
 else
