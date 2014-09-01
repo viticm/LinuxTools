@@ -28,6 +28,7 @@ cDate_TimeZone="Asia/Shanghai"
 cDisplay_Errors=On
 cError_Reporting="E_ALL & ~E_NOTICE"
 cAllow_Call_Time_Pass_Reference=On
+cPHPDefaultVersion="5.3.28"
 ###### PHP ########
 
 #### PHP-FPM CONFIGS ####
@@ -47,7 +48,7 @@ cat <<EOF
 Usage: $0 <params>
 -m or --mysql install mysql
 -n or --nginx install nginx
--p or --php install php( and this can enter two params,like -p 5.3( 5.4 ) then install php what version is 5.3 )
+-p or --php install php( and this can enter two params,like -p version then install php what version is ${cPHPDefaultVersion} )
 
 
 EOF
@@ -403,23 +404,13 @@ function InstallPHP()
   local cPhpPackage=""
   local cPhpPackageDir=""
   if [[ -z ${cPhpVersion} ]]; then
-    echo install default php version 5.3
-    cPhpVersion="5.3"
-    cPhpPackage="php-5.3.28.tar.bz2"
-    cPhpPackageDir="php-5.3.28"
+    echo install default php version ${cPHPDefaultVersion}
+    cPhpVersion=${cPHPDefaultVersion}
+    cPhpPackage="php-${cPHPDefaultVersion}.tar.bz2"
+    cPhpPackageDir="php-${cPHPDefaultVersion}"
   else
-    if [[ "5.3" != ${cPhpVersion} && "5.4" != ${cPhpVersion} ]]; then
-      Useage
-      exit 1
-    else
-      if [[ "5.3" == ${cPhpVersion} ]]; then
-        cPhpPackage="php-5.3.28.tar.bz2"
-        cPhpPackageDir="php-5.3.28"
-      else
-        cPhpPackage="php-5.4.15.tar.bz2"
-        cPhpPackageDir="php-5.4.15"
-      fi
-    fi
+    cPhpPackage="php-${cPHPDefaultVersion}.tar.bz2"
+    cPhpPackageDir="php-${cPHPDefaultVersion}"
   fi
 
   if [[ ${cDownload} == "on" ]] ; then
