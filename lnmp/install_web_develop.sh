@@ -409,8 +409,8 @@ function InstallPHP()
     cPhpPackage="php-${cPHPDefaultVersion}.tar.bz2"
     cPhpPackageDir="php-${cPHPDefaultVersion}"
   else
-    cPhpPackage="php-${cPHPDefaultVersion}.tar.bz2"
-    cPhpPackageDir="php-${cPHPDefaultVersion}"
+    cPhpPackage="php-${cPhpVersion}.tar.bz2"
+    cPhpPackageDir="php-${cPhpVersion}"
   fi
 
   if [[ ${cDownload} == "on" ]] ; then
