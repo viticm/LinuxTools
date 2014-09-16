@@ -28,7 +28,7 @@ cDate_TimeZone="Asia/Shanghai"
 cDisplay_Errors=On
 cError_Reporting="E_ALL & ~E_NOTICE"
 cAllow_Call_Time_Pass_Reference=On
-cPHPDefaultVersion="5.3.28"
+cPHPDefaultVersion="5.4.32"
 ###### PHP ########
 
 #### PHP-FPM CONFIGS ####
@@ -58,7 +58,7 @@ return 0
 # on OEL, /etc/issue states "Enterprise Linux Enterprise Linux Server"
 SUPPORTED_OS='CentOS|Red Hat Enterprise Linux Server|Enterprise Linux Enterprise Linux Server|Fedora|SUSE|Debian GNU/Linux|Ubuntu|Oracle Linux Server'
 
-if ! egrep -q "$SUPPORTED_OS" /etc/issue ; then
+if ! egrep -q "$SUPPORTED_OS" /etc/issue && ! egrep -q "$SUPPORTED_OS" /etc/redhat-release ; then
 cat <<EOF
 
 Unable to install: Your distribution is not suitable for installation using
@@ -258,8 +258,6 @@ function InstallMysql()
   cd ${cMysqlInstallPath} && chown -R mysql . &&  chgrp -R mysql .
   echo "Database startup is complete"
   sleep 3
-
-  ln -s ${cMysqlInstallPath}/include/* /usr/local/include/ #for php 5.4
   
   echo "Change your password after 10 seconds"
   sleep 10
@@ -405,7 +403,7 @@ function InstallPHP()
   local cPhpVersion=${1}
   local cPhpPackage=""
   local cPhpPackageDir=""
-  if [[ -z ${cPhpVersion} ]]; then
+  if [[ ${cPhpVersion} == "" ]]; then
     echo install default php version ${cPHPDefaultVersion}
     cPhpVersion=${cPHPDefaultVersion}
     cPhpPackage="php-${cPHPDefaultVersion}.tar.bz2"
