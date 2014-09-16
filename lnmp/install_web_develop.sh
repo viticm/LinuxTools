@@ -478,6 +478,8 @@ function InstallPHP()
     tar -zxvf libiconv-1.14.tar.gz && cd libiconv-1.14/
   fi
   ./configure --prefix=/usr/local
+  sed -i '1010 i\#if defined(__GLIBC__) && !defined(__UCLIBC__) && !__GLIBC_PREREQ(2, 16)' srclib/stdio.h #fix bug for new version
+  sed -i '1012 i\#endif' srclib/stdio.h #fix bug for new version
   make -s -j4 && make install && cd ../
   sleep 1
 #2
